@@ -1,0 +1,19 @@
+[project]
+name = "miami"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Razex-ui",email = "ponomarenko_daniil@inbox.ru"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi (>=0.129.0,<0.130.0)",
+    "uvicorn (>=0.40.0,<0.41.0)",
+    "pydantic-settings (>=2.13.1,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
