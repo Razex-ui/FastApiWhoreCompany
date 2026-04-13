@@ -1,38 +1,46 @@
 from fastapi.routing import APIRouter
-from schemas.whore import WhoreData
-from models.whore import Whore
+from pydantic import UUID4
 
-from fastapi import APIRouter, Depends
+from src.schemas.whore import Whore, WhoreDB, WhoreUpdate
+from src.models.whore import WhoresSQL
+
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 
-from db.session import engine, get_session
+from src.db.session import get_session
 
-
-router = APIRouter(prefix="/whore", tags=['Whore'])
-
-
-@router.post("/create")
-async def create(body: WhoreData, db_session: AsyncSession = Depends(get_session)) -> WhoreData:
-    new_whore = Whore(**body.model_dump())
-    db_session.add(new_whore)
-    await db_session.commit()
-    return new_whore
-
-@router.get("/get_all")
-async def get_all(db_session: AsyncSession = Depends(get_session)) -> list[WhoreData]:
-    query = select(Whore)
-    query_result = await db_session.execute(query)
-    return query_result.scalars().all()
+from src.service.whore import WhoreService
 
 
-@router.delete("/delete_all")
+router = APIRouter()
+
+
+@router.post("/create", tags=['Создание'])
+async def create(body: Whore, db_session: AsyncSession = Depends(get_session)) -> WhoreDB:
+    return await WhoreService.create(body, db_session)
+
+
+@router.get("/get_all", tags=['Получить всё'])
+async def get_all(db_session: AsyncSession = Depends(get_session)) -> list[WhoreDB]:
+    return await WhoreService.get_all(db_session)
+
+
+@router.get("/get${uid}", tags=['Получить одно'])
+async def get_one(uid: UUID4, db_session: AsyncSession = Depends(get_session)) -> WhoreDB:
+    return await WhoreService.get_one(uid, db_session)
+    
+
+@router.put("/update", tags=['Обновить одно'])
+async def update_one(uid: UUID4, body: WhoreUpdate, db_session: AsyncSession = Depends(get_session)) -> WhoreDB:
+    return await WhoreService.update_one(uid, body, db_session)
+
+
+@router.delete("/delete${uid}", tags=['Удалить один элемент'])
+async def delete_one(uid: UUID4, db_session: AsyncSession = Depends(get_session)):
+    return await WhoreService.delete_one(uid, db_session)
+
+
+@router.delete("/delete_all", tags=['Удалить всё'])
 async def delete_all(db_session: AsyncSession = Depends(get_session)):
-    query = delete(Whore)
-    await db_session.execute(query)
-    await db_session.commit()
-
-#
-# запрос -> коммит/роллбек
-#
-# 10000000  00000000 00000000 00000001 #
+    return await WhoreService.delete_all(db_session)

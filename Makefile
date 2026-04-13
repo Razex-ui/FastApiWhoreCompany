@@ -21,4 +21,8 @@ alembic_autogenerate: alembic_upgrade
 
 .PHONY: run_uvicorn
 run_uvicorn: requirements
-	poetry run python3 src/main.py
+	poetry run uvicorn src.main:app --reload
+
+.PHONY: run_db
+run_db: postgresql.sh
+	./postgresql.sh

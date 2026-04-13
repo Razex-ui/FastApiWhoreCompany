@@ -10,15 +10,17 @@ from alembic import context
 import sys
 from os.path import dirname, abspath
 
-
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 from src.config import settings
 from src.db.session import Base
-
 # should add all models here
-from src.models.whore import Whore
-from src.models import type_of_whores
+from src.models.whore import WhoresSQL
+from src.models.pimp import PimpsSQL
+from src.models.client import ClientsSQL
+from src.models.characteristics import CharacteristicsSQL
+from src.models.characteristics_whore import CharacteristicsWhoreSQL
+from src.models.client_whore import ClientsWhoreSQL
 
 
 # this is the Alembic Config object, which provides
@@ -42,7 +44,7 @@ target_metadata = Base.metadata
 
 # updating database url
 configuration = config.get_section(config.config_ini_section, {})
-configuration["sqlalchemy.url"] = str(settings.SQLALCHEMY_DATABASE_URL)
+configuration["sqlalchemy.url"] = str(settings.DB.SQLALCHEMY_DATABASE_URI)
 
 
 def run_migrations_offline() -> None:
