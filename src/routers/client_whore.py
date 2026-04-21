@@ -1,7 +1,7 @@
 from fastapi.routing import APIRouter
 from pydantic import UUID4
 
-from src.schemas.client_whore import ClientWhore, ClientWhoreDB, ClientWhoreUpdate
+from src.schemas.client_whore import ClientWhore, ClientWhoreDB, ClientWhoreUpdate, ClientWhoreFilter
 from src.models.client_whore import ClientsWhoreSQL
 
 from fastapi import Depends
@@ -19,6 +19,9 @@ router = APIRouter(prefix="/client_whore", tags=['Client_whore'])
 async def create(body: ClientWhore, db_session: AsyncSession = Depends(get_session)) -> ClientWhoreDB:
     return await ClientWhoreService.create(body, db_session)    
 
+@router.post("/get_with_filter", tags=['Отфильтровать'])
+async def get_filter(filter_by: ClientWhoreFilter, db_session: AsyncSession = Depends(get_session)) -> list[ClientWhoreDB]:
+    return await ClientWhoreService.get_with_filter(filter_by, db_session)
 
 @router.get("/get_all", tags=['Получить всё'])
 async def get_all(db_session: AsyncSession = Depends(get_session)) -> list[ClientWhoreDB]:

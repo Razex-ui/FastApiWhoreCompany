@@ -9,5 +9,5 @@ class CharacteristicsWhoreSQL(Base):
     __tablename__ = "characteristics_whore"
 
     uid: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
-    whore_uid: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("whores.uid"), nullable=False)
-    characteristic_uid: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("characteristics.uid"), nullable=False)
+    whore_uid: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("whores.uid", ondelete='CASCADE'), nullable=False)
+    characteristic_uid: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("characteristics.uid", ondelete='CASCADE'), nullable=False)

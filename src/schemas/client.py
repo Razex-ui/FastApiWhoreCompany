@@ -32,3 +32,8 @@ class ClientDB(BaseModel):
     referral: str = Field(description="Реферал")
     
 
+class ClientFilter(BaseModel):
+    limit: int = Field(description="Лимит вывода", default=-1, ge=-1)
+    offset: int = Field(description="Смещение вывода", default=0, ge=0)
+    # Поисковая строка.
+    search_query: str | None = Field(description="Поисковая строка", default=None)

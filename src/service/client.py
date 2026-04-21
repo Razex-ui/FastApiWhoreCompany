@@ -3,12 +3,12 @@ from fastapi.routing import APIRouter
 from fastapi import HTTPException
 
 from pydantic import UUID4
-from src.schemas.client import Client, ClientDB , ClientUpdate
+from src.schemas.client import Client, ClientDB , ClientUpdate, ClientFilter
 from src.models.client import ClientsSQL
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, or_
 
 from src.db.session import get_session
 
@@ -23,6 +23,27 @@ class ClientService:
         await db_session.commit()
         return new_obj
 
+    @classmethod
+    async def get_with_filter(cls, filter_by: ClientFilter, db_session) -> list[ClientDB]:
+        query = select(cls.model)
+
+        if filter_by.limit > -1:
+            query = query.limit(filter_by.limit)
+        if filter_by.offset > 0:
+            query = query.offset(filter_by.offset)
+        
+        if filter_by.search_query is not None:
+            query = query.where(
+                or_(
+                    cls.model.name.ilike(f'{filter_by.search_query}'),
+                    cls.model.address.ilike(f'{filter_by.search_query}'),
+                    cls.model.phone_number.ilike(f'{filter_by.search_query}'),
+                    cls.model.referral.ilike(f'{filter_by.search_query}')                
+                )
+            )
+
+        query_result = await db_session.execute(query)
+        return query_result.scalars().all()
 
     @classmethod
     async def get_all(cls, db_session) -> list[ClientDB]:

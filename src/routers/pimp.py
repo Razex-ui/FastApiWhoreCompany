@@ -1,6 +1,6 @@
 from fastapi.routing import APIRouter
 from pydantic import UUID4
-from src.schemas.pimp import Pimp, PimpDB, PimpUpdate
+from src.schemas.pimp import Pimp, PimpDB, PimpUpdate, PimpFilter
 from src.models.pimp import PimpsSQL
 
 from fastapi import Depends
@@ -18,6 +18,9 @@ router = APIRouter(prefix="/pimp", tags=['Pimp'])
 async def create(body: Pimp, db_session: AsyncSession = Depends(get_session)) -> PimpDB:
     return await PimpService.create(body, db_session)
 
+@router.post("/get_with_filter", tags=['Отфильтровать'])
+async def get_filter(filter_by: PimpFilter, db_session: AsyncSession = Depends(get_session)) -> list[PimpDB]:
+    return await PimpService.get_with_filter(filter_by, db_session)
 
 @router.get("/get_all", tags=['Получить всё'])
 async def get_all(db_session: AsyncSession = Depends(get_session)) -> list[PimpDB]:

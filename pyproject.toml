@@ -45,7 +45,8 @@ exclude = [
     ".venv",
     ".vscode",
     ".idea",
-    "env.py"
+    "env.py",
+    "migrations"
 ]
 per-file-ignores = [
 #    "migrations/env.py:F401",

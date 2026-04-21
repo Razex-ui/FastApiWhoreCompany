@@ -33,3 +33,9 @@ class PimpDB(BaseModel):
     email: str = Field(description="Email", default=None)
     discord: str = Field(description="Дискорд сутенера")
     nickname: str = Field(description="Прозвище сутенера")
+
+
+class PimpFilter(BaseModel):
+    limit: int = Field(description="Лимит вывода", default=-1, ge=-1)
+    offset: int = Field(description="Смещение вывода", default=0, ge=0)
+    search_query: str | None = Field(description="Поисковая строка", default=None)

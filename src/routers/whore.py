@@ -1,7 +1,7 @@
 from fastapi.routing import APIRouter
 from pydantic import UUID4
 
-from src.schemas.whore import Whore, WhoreDB, WhoreUpdate
+from src.schemas.whore import Whore, WhoreDB, WhoreUpdate, WhoreFilter
 from src.models.whore import WhoresSQL
 
 from fastapi import Depends
@@ -20,6 +20,9 @@ router = APIRouter()
 async def create(body: Whore, db_session: AsyncSession = Depends(get_session)) -> WhoreDB:
     return await WhoreService.create(body, db_session)
 
+@router.post("/get_with_filter", tags=['Отфильтровать'])
+async def get_filter(filter_by: WhoreFilter, db_session: AsyncSession = Depends(get_session)) -> list[WhoreDB]:
+    return await WhoreService.get_with_filter(filter_by, db_session)
 
 @router.get("/get_all", tags=['Получить всё'])
 async def get_all(db_session: AsyncSession = Depends(get_session)) -> list[WhoreDB]:

@@ -1,11 +1,11 @@
 from fastapi.routing import APIRouter
 from pydantic import UUID4
-from src.schemas.pimp import Pimp, PimpDB, PimpUpdate
+from src.schemas.pimp import Pimp, PimpDB, PimpUpdate, PimpFilter
 from src.models.pimp import PimpsSQL
 
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, or_
 
 from src.db.session import get_session
 
@@ -20,6 +20,27 @@ class PimpService:
         await db_session.commit()
         return new_obj
 
+    @classmethod
+    async def get_with_filter(cls, filter_by: PimpFilter, db_session) -> list[PimpDB]:
+        query = select(cls.model)
+
+        if filter_by.limit > -1:
+            query = query.limit(filter_by.limit)
+        if filter_by.offset > 0:
+            query = query.offset(filter_by.offset)
+        
+        if filter_by.search_query is not None:
+            query = query.where(
+                or_(
+                    cls.model.number.ilike(f'{filter_by.search_query}'),
+                    cls.model.email.ilike(f'{filter_by.search_query}'),
+                    cls.model.discord.ilike(f'{filter_by.search_query}'),
+                    cls.model.nickname.ilike(f'{filter_by.search_query}')
+                )
+            )
+
+        query_result = await db_session.execute(query)
+        return query_result.scalars().all()
 
     @classmethod
     async def get_all(cls, db_session) -> list[PimpDB]:
@@ -55,7 +76,6 @@ class PimpService:
         await db_session.execute(query)
         await db_session.commit()
         return 'Сутенер опущен!'
-
 
     @classmethod
     async def delete_all(cls, db_session):

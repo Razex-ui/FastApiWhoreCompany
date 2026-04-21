@@ -1,6 +1,6 @@
 from fastapi.routing import APIRouter
 from pydantic import UUID4
-from src.schemas.characteristics import Characteristics, CharacteristicsUpdate, CharacteristicsDB  
+from src.schemas.characteristics import Characteristics, CharacteristicsUpdate, CharacteristicsDB, CharacteristicsFilter  
 from src.models.characteristics import CharacteristicsSQL
 
 from fastapi import Depends
@@ -19,6 +19,11 @@ router = APIRouter(prefix="/characteristics", tags=['Characteristics'])
 @router.post("/create", tags=['Создание'])
 async def create(body: Characteristics, db_session: AsyncSession = Depends(get_session)) -> CharacteristicsDB:
     return await CharacteristicsService.create(body, db_session)
+
+
+@router.post("/get_with_filter", tags=['Отфильтровать'])
+async def get_filter(filter_by: CharacteristicsFilter, db_session: AsyncSession = Depends(get_session)) -> list[CharacteristicsDB]:
+    return await CharacteristicsService.get_with_filter(filter_by, db_session)
 
 
 @router.get("/get_all", tags=['Получить всё'])

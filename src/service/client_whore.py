@@ -3,7 +3,7 @@ from fastapi.routing import APIRouter
 from fastapi import HTTPException
 
 from pydantic import UUID4
-from src.schemas.client_whore import ClientWhore, ClientWhoreDB, ClientWhoreUpdate
+from src.schemas.client_whore import ClientWhore, ClientWhoreDB, ClientWhoreUpdate, ClientWhoreFilter
 from src.models.client_whore import ClientsWhoreSQL
 
 from fastapi import Depends
@@ -27,6 +27,42 @@ class ClientWhoreService:
         await db_session.commit()
         return new_obj
 
+    @classmethod
+    async def get_with_filter(cls, filter_by: ClientWhoreFilter, db_session) -> list[ClientWhoreDB]:
+        query = select(cls.model)
+
+        if filter_by.limit > -1:
+            query = query.limit(filter_by.limit)
+        if filter_by.offset > 0:
+            query = query.offset(filter_by.offset)
+        
+
+        if filter_by.client_uid is not None:
+            query = query.where(cls.model.client_uid == filter_by.client_uid)
+
+        if filter_by.whore_uid is not None:
+            query = query.where(cls.model.whore_uid == filter_by.whore_uid)
+
+        if filter_by.date_of_visit_from is not None:
+            query = query.where(
+                cls.model.date_of_visit >= filter_by.date_of_visit_from
+            )
+        if filter_by.date_of_visit_to is not None:
+            query = query.where(
+                cls.model.date_of_visit <= filter_by.date_of_visit_to
+            )
+
+        if filter_by.cost_of_visit_from is not None:
+            query = query.where(
+                cls.model.cost_of_visit >= filter_by.cost_of_visit_from
+            )
+        if filter_by.cost_of_visit_to is not None:
+            query = query.where(
+                cls.model.cost_of_visit <= filter_by.cost_of_visit_to
+            )
+
+        query_result = await db_session.execute(query)
+        return query_result.scalars().all()
 
     @classmethod
     async def get_all(cls, db_session) -> list[ClientWhoreDB]:
