@@ -1,8 +1,8 @@
 """
 
-Revision ID: 05ae8b55489c
+Revision ID: a56aabaf8f3d
 Revises: 
-Create Date: 2026-04-09 19:28:00.723337
+Create Date: 2026-04-25 15:43:06.521538
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '05ae8b55489c'
+revision: str = 'a56aabaf8f3d'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -49,25 +49,26 @@ def upgrade() -> None:
     sa.Column('address', sa.String(), nullable=False),
     sa.Column('phone_number', sa.String(), nullable=False),
     sa.Column('pimp_uid', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['pimp_uid'], ['pimps.uid'], ),
+    sa.Column('update_time', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['pimp_uid'], ['pimps.uid'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('uid')
     )
     op.create_table('characteristics_whore',
     sa.Column('uid', sa.UUID(), nullable=False),
     sa.Column('whore_uid', sa.UUID(), nullable=False),
     sa.Column('characteristic_uid', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['characteristic_uid'], ['characteristics.uid'], ),
-    sa.ForeignKeyConstraint(['whore_uid'], ['whores.uid'], ),
+    sa.ForeignKeyConstraint(['characteristic_uid'], ['characteristics.uid'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['whore_uid'], ['whores.uid'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('uid')
     )
     op.create_table('clients_whore',
     sa.Column('uid', sa.UUID(), nullable=False),
     sa.Column('client_uid', sa.UUID(), nullable=False),
     sa.Column('whore_uid', sa.UUID(), nullable=False),
-    sa.Column('date_of_visit', sa.String(), nullable=False),
+    sa.Column('date_of_visit', sa.DateTime(), nullable=False),
     sa.Column('cost_of_visit', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['client_uid'], ['clients.uid'], ),
-    sa.ForeignKeyConstraint(['whore_uid'], ['whores.uid'], ),
+    sa.ForeignKeyConstraint(['client_uid'], ['clients.uid'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['whore_uid'], ['whores.uid'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('uid')
     )
     # ### end Alembic commands ###

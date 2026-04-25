@@ -47,6 +47,10 @@ app = FastAPI(
     openapi_tags=tags_metadata
 )
 
+@app.get('/api/v1/version')
+def get_version():
+    return 1
+
 router = APIRouter(prefix=settings.BASE_ROUTE_PATH)
 
 router.include_router(whore_router, prefix="/whore", tags=['Whore'])

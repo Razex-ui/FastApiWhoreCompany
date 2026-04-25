@@ -1,0 +1,58 @@
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    environment:
+      BASE_ROUTE_PATH: ${BASE_ROUTE_PATH}
+      POSTGRES_SERVER: ${POSTGRES_SERVER}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 80:8000
+    networks:
+      - trireme
+    healthcheck:
+      # -f: return error code; -s: silent (hide progress bar); -S: show error
+      test: ["CMD-SHELL", "curl -f -s -S -o /dev/null -X 'GET' 'http://localhost:8000/api/v1/version' -H 'accept: application/json'"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  db:
+    image: postgres:18.2-alpine
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_SERVER: ${POSTGRES_SERVER}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    networks:
+      - trireme
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+networks:
+  trireme:
+
+volumes:
+  postgres:
